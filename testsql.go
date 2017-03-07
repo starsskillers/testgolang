@@ -3,34 +3,37 @@ package main
 import (
     "github.com/jinzhu/gorm"
     _ "github.com/jinzhu/gorm/dialects/mysql"
+    "time"
 )
 
-type Product struct {
+type History struct {
   gorm.Model
-  Code string
-  Price uint
+  FirstName string
+  LastName string
+  Email string
+  TimeStamp time.Time
 }
 
 func main() {
-  db, err := gorm.Open("mysql","root:root@localhost:3306/Product?charset=utf8&parseTime=True&loc=Local")
+  db, err := gorm.Open("mysql","root:root@(localhost:3306)/History?charset=utf8&parseTime=True&loc=Local")
   if err != nil {
     panic("failed to connect database")
   }
   defer db.Close()
 
   // Migrate the schema
-  db.AutoMigrate(&Product{})
+  db.AutoMigrate(&History{})
 
   // Create
-  db.Create(&Product{Code: "L1212", Price: 1000})
+  db.Create(&History{FirstName: "ffff", LastName: "lllll", Email:"eeee", TimeStamp: time.Now()})
 
   // Read
-  var product Product
-  db.First(&product, 1) // find product with id 1
-  db.First(&product, "code = ?", "L1212") // find product with code l1212
+  // var his History
+  // db.First(&his, 1) // find product with id 1
+  // db.First(&his, "code = ?", "L1212") // find product with code l1212
 
-  // Update - update product's price to 2000
-  db.Model(&product).Update("Price", 2000)
+  // // Update - update product's price to 2000
+  // db.Model(&product).Update("Price", 2000)
 
   // Delete - delete product
   //db.Delete(&product)
