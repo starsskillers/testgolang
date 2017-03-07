@@ -2,7 +2,7 @@ package main
 
 import (
     "github.com/jinzhu/gorm"
-    _ "github.com/jinzhu/gorm/dialects/sqlite"
+    _ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 type Product struct {
@@ -12,7 +12,7 @@ type Product struct {
 }
 
 func main() {
-  db, err := gorm.Open("mysql","root:@localhost:3306/Product?charset=utf8&local=local&parseTime=True")
+  db, err := gorm.Open("mysql","root:root@localhost:3306/Product?charset=utf8&local=local&parseTime=True")
   if err != nil {
     panic("failed to connect database")
   }
