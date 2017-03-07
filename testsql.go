@@ -2,7 +2,7 @@ package main
 
 import (
     "github.com/jinzhu/gorm"
-    _ "github.com/jinzhu/gorm/dialects/sqlite"
+    _ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 type Product struct {
