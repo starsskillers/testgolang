@@ -12,7 +12,7 @@ type Product struct {
 }
 
 func main() {
-  db, err := gorm.Open("mysql","root:root@localhost:3306/Product?charset=utf8&local=local&parseTime=True")
+  db, err := gorm.Open("mysql","root:root@localhost:3306/Product?charset=utf8&parseTime=True&loc=Local")
   if err != nil {
     panic("failed to connect database")
   }
