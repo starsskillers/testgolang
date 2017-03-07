@@ -9,8 +9,9 @@ import (
     "github.com/satori/go.uuid"
     "github.com/garyburd/redigo/redis"
    	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
-    _ "github.com/jinzhu/gorm/dialects/sqlite"
+    "github.com/jinzhu/gorm"
+    _ "github.com/jinzhu/gorm/dialects/mysql"
+    "time"
 )
 
 type Person struct {
@@ -39,7 +40,13 @@ type Histoey struct {
         LastName string
         TimeStamp string
 }
-
+type History struct {
+  gorm.Model
+  FirstName string
+  LastName string
+  Email string
+  TimeStamp time.Time
+}
 
 func handler(writer http.ResponseWriter, request *http.Request){
 	
@@ -175,6 +182,13 @@ func handler3(writer http.ResponseWriter, request *http.Request){
     }
     defer conn.Close()
 
+   	db, err := gorm.Open("mysql","root:root@(localhost:3306)/History?charset=utf8&parseTime=True&loc=Local")
+  	if err != nil {
+    	panic("failed to connect database")
+  	}
+  	defer db.Close()
+
+
 	dec := json.NewDecoder(request.Body)
 	var m Result
 	err = dec.Decode(&m)
@@ -221,28 +235,10 @@ func handler3(writer http.ResponseWriter, request *http.Request){
     //{“success”:true|false,”desc”:”xxx”,result:{“firstName”:”xxx”,”lastName”:”xxx”}}
 
     //mysql code
- 	db, err := gorm.Open("sqlite3", "test.db")
- 	if err != nil {
-    	panic("failed to connect database")
-  	}
-  	defer db.Close()
-
-  	// Migrate the schema
-  	db.AutoMigrate(&Product{})
+ 	db.AutoMigrate(&History{})
 
   	// Create
-  	db.Create(&Product{Code: "L1212", Price: 1000})
-
-  	// Read
-  	var product Product
-  	db.First(&product, 1) // find product with id 1
-  	db.First(&product, "code = ?", "L1212") // find product with code l1212
-
-  	// Update - update product's price to 2000
-  	db.Model(&product).Update("Price", 2000)
-
-  	// Delete - delete product
-  	db.Delete(&product)
+  	db.Create(&History{FirstName: result.FirstName, LastName: result.LastName, Email:result.Email, TimeStamp: time.Now()})
 
 
 }
