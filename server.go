@@ -9,44 +9,56 @@ import (
     "github.com/satori/go.uuid"
     "github.com/garyburd/redigo/redis"
    	"github.com/gorilla/mux"
-    "github.com/jinzhu/gorm"
-    _ "github.com/jinzhu/gorm/dialects/mysql"
-    "time"
+    // "github.com/jinzhu/gorm"
+    // _ "github.com/jinzhu/gorm/dialects/mysql"
+    // "time"
 )
 
 type Person struct {
-        FirstName string
-        LastName string
-        Email string
-        Password string
+    FirstName string
+    LastName string
+    Email string
+    Password string
 }
 type Sen struct {
-        Success bool
-        Desc string
+    Success bool
+    Desc string
 }
 type Result struct{
-		FirstName string
-        LastName string
+	FirstName string
+    LastName string
 }
 type Load struct {
-        Success bool
-        Desc string
-        Result1 Result 
+    Success bool
+    Desc string
+    Result1 Result 
 }
 type Histoey struct {
-  		gorm.Model
-  		Email string
-  		FirstName string
-        LastName string
-        TimeStamp string
+  	gorm.Model
+  	Email string
+  	FirstName string
+    LastName string
+    TimeStamp string
 }
 type History struct {
-  gorm.Model
-  FirstName string
-  LastName string
-  Email string
-  TimeStamp time.Time
+  	gorm.Model
+  	FirstName string
+  	LastName string
+  	Email string
+  	TimeStamp time.Time
 }
+
+var sess *mgo.Session
+
+//func Decode(body string, struct *struct) 
+func connectMongoDB () {
+	sess, err := mgo.Dial("localhost:27017")
+    if err != nil {
+        fmt.Println("can't connect mongoDB")
+    }
+    sess.SetMode(mgo.Monotonic, true)
+}
+
 
 func handler(writer http.ResponseWriter, request *http.Request){
 	
@@ -61,12 +73,7 @@ func handler(writer http.ResponseWriter, request *http.Request){
 	//fmt.Printf("%v: %v: %v: %v\n", m.FirstName, m.LastName, m.Email, m.Password)
 
 
-	session, err := mgo.Dial("localhost:27017")
-    if err != nil {
-        panic(err)
-    }
-    defer session.Close()
-    session.SetMode(mgo.Monotonic, true)
+	session := sess.Copy()
 
     c := session.DB("test").C("Person")
     result := Person{}
@@ -182,11 +189,11 @@ func handler3(writer http.ResponseWriter, request *http.Request){
     }
     defer conn.Close()
 
-   	db, err := gorm.Open("mysql","root:root@(localhost:3306)/History?charset=utf8&parseTime=True&loc=Local")
-  	if err != nil {
-    	panic("failed to connect database")
-  	}
-  	defer db.Close()
+   // 	db, err := gorm.Open("mysql","root:root@(localhost:3306)/History?charset=utf8&parseTime=True&loc=Local")
+  	// if err != nil {
+   //  	panic("failed to connect database")
+  	// }
+  	// defer db.Close()
 
 
 	dec := json.NewDecoder(request.Body)
@@ -235,16 +242,19 @@ func handler3(writer http.ResponseWriter, request *http.Request){
     //{“success”:true|false,”desc”:”xxx”,result:{“firstName”:”xxx”,”lastName”:”xxx”}}
 
     //mysql code
- 	db.AutoMigrate(&History{})
 
-  	// Create
-  	db.Create(&History{FirstName: result.FirstName, LastName: result.LastName, Email:result.Email, TimeStamp: time.Now()})
+  //   // Migrate(โยกย้าย) the schema 
+ 	// db.AutoMigrate(&History{})
+
+  // 	// Create
+  // 	db.Create(&History{FirstName: result.FirstName, LastName: result.LastName, Email:result.Email, TimeStamp: time.Now()})
 
 
 }
 
 
 func main(){
+	connectMongoDB()
 	http.HandleFunc("/v1/member/register", handler)
 	http.HandleFunc("/v1/member/login", handler2)
 
